@@ -58,24 +58,18 @@ export const people: Person[] = [
     sub: 'limpieza',
   },
   {
-    id: 'andres',
-    name: 'Andrés',
-    role: 'mant',
-    sub: 'mantenimiento',
-  },
-  {
-    id: 'brian',
-    name: 'Brian',
+    id: 'bryan',
+    name: 'Bryan',
     role: 'mant',
     sub: 'mantenimiento',
   },
 ];
 
 export const houses: House[] = [
-  { id: 'nube', name: 'Casa Nube' },
-  { id: 'mango', name: 'Casa Mango' },
+  { id: 'ceiba', name: 'Ceiba' },
+  { id: 'ronron', name: 'Ron Ron' },
+  { id: 'mango', name: 'Mango' },
   { id: 'palmera', name: 'Palmera Azul' },
-  { id: 'castana', name: 'Casa Castaña' },
 ];
 
 // Backend configuration

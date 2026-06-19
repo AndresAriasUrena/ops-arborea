@@ -134,7 +134,7 @@ main {
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 430px) {
+@media (min-width: 600px) {
   .grid.two {
     grid-template-columns: 1fr 1fr;
   }
@@ -433,9 +433,32 @@ footer {
 
 .form-item textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 140px;
   font-family: var(--quiet);
   line-height: 1.5;
+  width: 100%;
+  max-width: 100%;
+}
+
+.form-section > textarea {
+  resize: vertical;
+  min-height: 140px;
+  font-family: var(--quiet);
+  line-height: 1.5;
+  width: 100%;
+  max-width: 100%;
+  font-size: 15px;
+  color: var(--paper);
+  background: var(--forest);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-section > textarea:focus {
+  border-color: var(--amber);
 }
 
 .photo-btn {
