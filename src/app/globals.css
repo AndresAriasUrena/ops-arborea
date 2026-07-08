@@ -590,14 +590,14 @@ footer {
 }
 
 .btn.pending {
-  background: var(--amber);
-  border-color: var(--amber);
+  background: rgba(255, 210, 169, 0.4);
+  border-color: rgba(255, 210, 169, 0.4);
   color: var(--forest);
 }
 
 .btn.pending:active {
-  background: #FFC68F;
-  border-color: #FFC68F;
+  background: rgba(255, 198, 143, 0.4);
+  border-color: rgba(255, 198, 143, 0.4);
 }
 
 .message {
