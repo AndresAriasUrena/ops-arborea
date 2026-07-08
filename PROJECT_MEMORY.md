@@ -92,9 +92,10 @@ Arbórea Operations/
 - **`src/components/ChecklistForm.tsx`**: Formulario universal
 
 ### Offline System
-- **`src/lib/offline-storage.ts`**: IndexedDB wrapper
-- **`src/lib/sync.ts`**: Sync logic con guard de concurrencia
+- **`src/lib/offline-storage.ts`**: IndexedDB wrapper (submissions + tareasCache stores)
+- **`src/lib/sync.ts`**: Sync logic con guard de concurrencia (Submission + TareaCompletada)
 - **`src/lib/photo-compression.ts`**: Compresión client-side
+- **`src/lib/tareas.ts`**: Módulo de tareas extra con caché offline
 - **`public/sw.js`**: Service Worker manual
 
 ### UI Components
@@ -107,7 +108,7 @@ Arbórea Operations/
 
 ## Flujo de Datos
 
-### Offline → Online
+### Checklists: Offline → Online
 1. Usuario llena checklist offline
 2. Datos guardados en IndexedDB (status: "pending")
 3. Badge muestra contador de pendientes
@@ -115,6 +116,15 @@ Arbórea Operations/
 5. Backend verifica idempotencia (Log sheet)
 6. Carpeta creada en Drive + registro en Sheet
 7. Status cambia a "synced", badge desaparece
+
+### Tareas Extra
+1. **Lectura:** `fetchTareas(responsable)` → Backend POST { action:'getTareas', responsable, secret }
+   - Respuesta cacheada en IndexedDB store 'tareasCache'
+   - Fallback automático a caché si sin conexión
+2. **Cierre:** `enqueueTareaCompletada()` → Cola offline (mismo store que submissions)
+   - Objeto: `{ tipo:'tarea_completada', submissionId, taskId, responsable, observaciones?, photos, deviceTimestamp, status }`
+   - Sync automático cuando hay conexión
+   - Backend responde `{ ok:true }` → marca como synced
 
 ### Idempotencia (3 capas)
 1. **Cache (6h):** Respuestas rápidas para reintentos inmediatos
@@ -261,10 +271,18 @@ ls -R out/
 ---
 
 **Última actualización:** 2025-06-18
-**Versión:** 1.1.0 (Configuration Updates + PWA Icons)
+**Versión:** 1.2.0 (Tareas Extra Module)
 **Estado:** Production Ready ✅
 
 ## Changelog
+
+### v1.2.0 (2025-06-18)
+- **Módulo de tareas extra** con soporte offline completo
+- `fetchTareas(responsable)`: lectura con caché IndexedDB
+- `enqueueTareaCompletada()`: cierre de tareas en cola offline
+- Cola unificada para checklists y tareas (QueuedItem type union)
+- Backend actions: getTareas y tarea_completada
+- Fallback automático a caché sin conexión
 
 ### v1.1.0 (2025-06-18)
 - Actualización de configuración de usuarios (Nicole, Denisa, Bryan)
