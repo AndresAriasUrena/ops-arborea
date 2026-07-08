@@ -131,7 +131,10 @@ export default function TareaDetailClientPage() {
         <div className="trail">
           <button onClick={() => router.push('/')}>{tarea.responsable}</button>
           <span className="sep">→</span>
-          <button onClick={() => router.push('/tareas')}>Mis pendientes</button>
+          <button onClick={() => {
+            localStorage.setItem('arborea_responsable', tarea.responsable);
+            router.push('/tareas');
+          }}>Mis pendientes</button>
         </div>
       </header>
 

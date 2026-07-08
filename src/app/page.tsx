@@ -177,7 +177,12 @@ export default function Home() {
               {tareasCount > 0 && (
                 <button
                   className="btn"
-                  onClick={() => router.push('/tareas')}
+                  onClick={() => {
+                    if (selectedPerson) {
+                      localStorage.setItem('arborea_responsable', selectedPerson.name);
+                    }
+                    router.push('/tareas');
+                  }}
                 >
                   <div className="ico">
                     <TaskIcon />
