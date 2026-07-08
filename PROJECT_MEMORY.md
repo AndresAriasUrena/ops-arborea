@@ -86,10 +86,13 @@ Arbórea Operations/
 - **`src/checklists.ts`**: Definiciones de todos los checklists
 
 ### Frontend Core
-- **`src/app/page.tsx`**: Homepage (persona → casa → checklist)
+- **`src/app/page.tsx`**: Homepage (persona → casa/tareas → checklist)
 - **`src/app/checklist/[id]/page.tsx`**: Server component (generateStaticParams)
 - **`src/app/checklist/[id]/client-page.tsx`**: Client component (form logic)
 - **`src/components/ChecklistForm.tsx`**: Formulario universal
+- **`src/app/tareas/page.tsx`**: Lista de tareas pendientes
+- **`src/app/tareas/[id]/page.tsx`**: Server component para detalle de tarea
+- **`src/app/tareas/[id]/client-page.tsx`**: Formulario de cierre de tarea
 
 ### Offline System
 - **`src/lib/offline-storage.ts`**: IndexedDB wrapper (submissions + tareasCache stores)
@@ -121,10 +124,14 @@ Arbórea Operations/
 1. **Lectura:** `fetchTareas(responsable)` → Backend POST { action:'getTareas', responsable, secret }
    - Respuesta cacheada en IndexedDB store 'tareasCache'
    - Fallback automático a caché si sin conexión
+   - UI: Botón "Mis pendientes (n)" en home tras elegir persona
+   - Lista ordenada: urgentes primero, luego normales
 2. **Cierre:** `enqueueTareaCompletada()` → Cola offline (mismo store que submissions)
    - Objeto: `{ tipo:'tarea_completada', submissionId, taskId, responsable, observaciones?, photos, deviceTimestamp, status }`
    - Sync automático cuando hay conexión
    - Backend responde `{ ok:true }` → marca como synced
+   - UI: Detalle con observaciones (opcional) + fotos (max 5, opcional)
+   - Botón "Marcar como completada" con feedback offline/online
 
 ### Idempotencia (3 capas)
 1. **Cache (6h):** Respuestas rápidas para reintentos inmediatos
@@ -142,7 +149,7 @@ NEXT_PUBLIC_SHARED_SECRET=arborea2025secure
 
 ### Frontend (Vercel/Hostinger)
 ```bash
-npm run build  # Genera carpeta out/ con 21 páginas estáticas
+npm run build  # Genera carpeta out/ con 23 páginas estáticas
 ```
 
 ### Backend (Apps Script)
@@ -271,10 +278,20 @@ ls -R out/
 ---
 
 **Última actualización:** 2025-06-18
-**Versión:** 1.2.0 (Tareas Extra Module)
+**Versión:** 1.3.0 (Tareas Extra UI Complete)
 **Estado:** Production Ready ✅
 
 ## Changelog
+
+### v1.3.0 (2025-06-18)
+- **UI completa de tareas extra** con navegación integrada
+- Botón "Mis pendientes (n)" en home tras selección de persona
+- Lista de tareas con ordenamiento (urgentes primero)
+- Detalle de tarea con observaciones y fotos opcionales
+- Formulario de cierre reutilizando componentes existentes
+- TaskIcon añadido al sistema de iconos
+- 23 páginas estáticas generadas (incluye /tareas y /tareas/[id])
+- Flujo offline completo: guardar → encolar → sincronizar
 
 ### v1.2.0 (2025-06-18)
 - **Módulo de tareas extra** con soporte offline completo
