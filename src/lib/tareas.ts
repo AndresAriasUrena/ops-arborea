@@ -6,54 +6,10 @@ import { initDB } from './offline-storage';
 
 const TAREAS_STORE = 'tareasCache';
 
-// Inicializar store de caché de tareas (se añade al DB existente)
-export async function initTareasCache(): Promise<void> {
-  const db = await initDB();
-
-  // Si ya existe el store, no hacer nada
-  if (db.objectStoreNames.contains(TAREAS_STORE)) {
-    return;
-  }
-
-  // Necesitamos cerrar la conexión y reabrir con nueva versión
-  const currentVersion = db.version;
-  db.close();
-
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(db.name, currentVersion + 1);
-
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve();
-
-    request.onupgradeneeded = (event) => {
-      const database = (event.target as IDBOpenDBRequest).result;
-      if (!database.objectStoreNames.contains(TAREAS_STORE)) {
-        database.createObjectStore(TAREAS_STORE, { keyPath: 'responsable' });
-      }
-    };
-  });
-}
-
 // Guardar tareas en caché
 async function saveTareasToCache(responsable: string, tareas: Tarea[]): Promise<void> {
   const db = await initDB();
 
-  // Asegurarse de que el store existe
-  if (!db.objectStoreNames.contains(TAREAS_STORE)) {
-    await initTareasCache();
-    // Reconectar después de la migración
-    const newDb = await initDB();
-    return saveTareasToCacheInternal(newDb, responsable, tareas);
-  }
-
-  return saveTareasToCacheInternal(db, responsable, tareas);
-}
-
-function saveTareasToCacheInternal(
-  db: IDBDatabase,
-  responsable: string,
-  tareas: Tarea[]
-): Promise<void> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction([TAREAS_STORE], 'readwrite');
     const store = transaction.objectStore(TAREAS_STORE);
@@ -100,32 +56,47 @@ export async function fetchTareas(responsable: string): Promise<Tarea[]> {
   // Intentar fetch online
   if (navigator.onLine) {
     try {
+      const payload = {
+        action: 'getTareas',
+        responsable,
+        secret: SHARED_SECRET,
+      };
+
+      console.log('[fetchTareas] Enviando request:', { action: 'getTareas', responsable });
+
       const response = await fetch(BACKEND_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain',
         },
-        body: JSON.stringify({
-          action: 'getTareas',
-          responsable,
-          secret: SHARED_SECRET,
-        }),
+        body: JSON.stringify(payload),
       });
 
+      console.log('[fetchTareas] Response status:', response.status);
+
       const result: { ok: boolean; tareas?: Tarea[]; error?: string } = await response.json();
+      console.log('[fetchTareas] Response body:', result);
 
       if (result.ok && result.tareas) {
         // Guardar en caché
         await saveTareasToCache(responsable, result.tareas);
         return result.tareas;
       } else {
-        console.error('Error al obtener tareas:', result.error);
-        // Fallback a caché
+        console.warn('[fetchTareas] Backend error:', result.error);
+
+        // Si el backend aún no implementa getTareas, intentar caché
         const cached = await getTareasFromCache(responsable);
-        return cached || [];
+        if (cached && cached.length > 0) {
+          console.log('[fetchTareas] Usando caché existente:', cached.length, 'tareas');
+          return cached;
+        }
+
+        // Si no hay caché, devolver array vacío (backend no implementado aún)
+        console.log('[fetchTareas] No hay caché disponible, devolviendo array vacío');
+        return [];
       }
     } catch (error) {
-      console.error('Error de red al obtener tareas:', error);
+      console.error('[fetchTareas] Error de red:', error);
       // Fallback a caché
       const cached = await getTareasFromCache(responsable);
       return cached || [];
@@ -151,4 +122,54 @@ export async function enqueueTareaCompletada(tarea: TareaCompletada): Promise<vo
     request.onsuccess = () => resolve();
     request.onerror = () => reject(request.error);
   });
+}
+
+// Función de desarrollo: insertar tareas de prueba en caché
+// Solo para testing mientras el backend implementa getTareas
+export async function seedTareasForTesting(responsable: string): Promise<void> {
+  const tareasDemo: Tarea[] = [
+    {
+      taskId: 'tarea-001',
+      responsable,
+      casa: 'Ceiba',
+      titulo: 'Revisar sistema de agua caliente',
+      descripcion: 'El huésped reportó que el agua caliente tarda mucho en llegar. Verificar calentador y tuberías.',
+      prioridad: 'urgente',
+      semana: '2026-W28',
+      estado: 'pendiente'
+    },
+    {
+      taskId: 'tarea-002',
+      responsable,
+      casa: 'Mango',
+      titulo: 'Cambiar filtro de piscina',
+      descripcion: 'Mantenimiento preventivo programado para el filtro de la piscina.',
+      prioridad: 'normal',
+      semana: '2026-W28',
+      estado: 'pendiente'
+    },
+    {
+      taskId: 'tarea-003',
+      responsable,
+      casa: 'Palmera Azul',
+      titulo: 'Reparar cerradura de puerta principal',
+      descripcion: 'La cerradura está atascada y cuesta trabajo abrir. Requiere lubricación o reemplazo.',
+      prioridad: 'urgente',
+      semana: '2026-W28',
+      estado: 'pendiente'
+    },
+    {
+      taskId: 'tarea-004',
+      responsable,
+      casa: 'Ron Ron',
+      titulo: 'Podar árboles del jardín',
+      descripcion: 'Las ramas están tocando el techo y las ventanas. Podar para mantener distancia segura.',
+      prioridad: 'normal',
+      semana: '2026-W28',
+      estado: 'pendiente'
+    }
+  ];
+
+  await saveTareasToCache(responsable, tareasDemo);
+  console.log('[seedTareasForTesting] Insertadas', tareasDemo.length, 'tareas de prueba para', responsable);
 }

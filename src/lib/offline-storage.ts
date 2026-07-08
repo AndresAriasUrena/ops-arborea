@@ -3,8 +3,9 @@
 import type { Submission, TareaCompletada } from '@/config';
 
 const DB_NAME = 'arborea-ops';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Incrementado para añadir store tareasCache
 const STORE_NAME = 'submissions';
+const TAREAS_STORE = 'tareasCache';
 
 let db: IDBDatabase | null = null;
 
@@ -25,10 +26,17 @@ export async function initDB(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = (event) => {
       const database = (event.target as IDBOpenDBRequest).result;
+
+      // Store submissions (versión 1)
       if (!database.objectStoreNames.contains(STORE_NAME)) {
         const store = database.createObjectStore(STORE_NAME, { keyPath: 'submissionId' });
         store.createIndex('status', 'status', { unique: false });
         store.createIndex('deviceTimestamp', 'deviceTimestamp', { unique: false });
+      }
+
+      // Store tareasCache (versión 2)
+      if (!database.objectStoreNames.contains(TAREAS_STORE)) {
+        database.createObjectStore(TAREAS_STORE, { keyPath: 'responsable' });
       }
     };
   });
