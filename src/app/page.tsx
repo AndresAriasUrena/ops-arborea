@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { people, houses, type Person, type House } from '@/config';
+import { people, houses, type Person, type House, type Tarea } from '@/config';
 import { CHECKLISTS } from '@/checklists';
 import type { ChecklistSchema } from '@/config';
 import { getPendingCount } from '@/lib/offline-storage';
@@ -20,7 +20,8 @@ export default function Home() {
   const [selectedHouse, setSelectedHouse] = useState<House | null>(null);
   const [toast, setToast] = useState<string>('');
   const [pendingCount, setPendingCount] = useState<number>(0);
-  const [tareasCount, setTareasCount] = useState<number>(0);
+  const [tareas, setTareas] = useState<Tarea[]>([]);
+  const [showTareas, setShowTareas] = useState<boolean>(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('arborea-last-person');
@@ -56,15 +57,22 @@ export default function Home() {
   const handlePersonClick = async (person: Person) => {
     setSelectedPerson(person);
     setSelectedHouse(null);
+    setShowTareas(false);
     localStorage.setItem('arborea-last-person', person.id);
 
     // Fetch tareas para esta persona
     try {
-      const tareas = await fetchTareas(person.name);
-      setTareasCount(tareas.length);
+      const fetchedTareas = await fetchTareas(person.name);
+      // Ordenar: urgentes primero, luego normales
+      const sorted = [...fetchedTareas].sort((a, b) => {
+        if (a.prioridad === 'urgente' && b.prioridad !== 'urgente') return -1;
+        if (a.prioridad !== 'urgente' && b.prioridad === 'urgente') return 1;
+        return 0;
+      });
+      setTareas(sorted);
     } catch (error) {
       console.error('Error fetching tareas:', error);
-      setTareasCount(0);
+      setTareas([]);
     }
 
     setStep('house');
@@ -174,28 +182,68 @@ export default function Home() {
           <div className="view">
             <div className="step">Casa</div>
             <div className="grid">
-              {tareasCount > 0 && (
-                <button
-                  className="btn"
-                  onClick={() => {
-                    if (selectedPerson) {
-                      localStorage.setItem('arborea_responsable', selectedPerson.name);
-                    }
-                    router.push('/tareas');
-                  }}
-                >
-                  <div className="ico">
-                    <TaskIcon />
-                  </div>
-                  <div className="body">
-                    <div className="ttl">Mis pendientes ({tareasCount})</div>
-                  </div>
-                  <div className="go">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
-                  </div>
-                </button>
+              {tareas.length > 0 && (
+                <>
+                  <button
+                    className="btn pending"
+                    onClick={() => setShowTareas(!showTareas)}
+                  >
+                    <div className="ico">
+                      <TaskIcon />
+                    </div>
+                    <div className="body">
+                      <div className="ttl">Mis pendientes ({tareas.length})</div>
+                    </div>
+                    <div className="go">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d={showTareas ? "m18 15-6-6-6 6" : "m6 9 6 6 6-6"} />
+                      </svg>
+                    </div>
+                  </button>
+
+                  {showTareas && tareas.map((tarea) => (
+                    <button
+                      key={tarea.taskId}
+                      className="btn"
+                      onClick={() => {
+                        localStorage.setItem('arborea_tarea_actual', JSON.stringify(tarea));
+                        localStorage.setItem('arborea_responsable', selectedPerson.name);
+                        router.push('/tarea');
+                      }}
+                    >
+                      <div className="ico">
+                        <TaskIcon />
+                      </div>
+                      <div className="body">
+                        <div className="ttl">
+                          {tarea.titulo}
+                          {tarea.prioridad === 'urgente' && (
+                            <span style={{
+                              marginLeft: '8px',
+                              fontSize: '13px',
+                              color: 'var(--amber)',
+                              fontWeight: 'normal'
+                            }}>
+                              Urgente
+                            </span>
+                          )}
+                        </div>
+                        <div className="sub">{tarea.casa}</div>
+                        {tarea.descripcion && (
+                          <div className="role" style={{ marginTop: '6px', fontSize: '14px' }}>
+                            {tarea.descripcion.substring(0, 80)}
+                            {tarea.descripcion.length > 80 ? '...' : ''}
+                          </div>
+                        )}
+                      </div>
+                      <div className="go">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="m9 18 6-6-6-6" />
+                        </svg>
+                      </div>
+                    </button>
+                  ))}
+                </>
               )}
               {houses.map(house => (
                 <button

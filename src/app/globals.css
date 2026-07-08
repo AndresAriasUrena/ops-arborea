@@ -589,6 +589,17 @@ footer {
   color: var(--paper);
 }
 
+.btn.pending {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: var(--forest);
+}
+
+.btn.pending:active {
+  background: #FFC68F;
+  border-color: #FFC68F;
+}
+
 .message {
   margin: 20px 4px 0;
   padding: 14px 16px;

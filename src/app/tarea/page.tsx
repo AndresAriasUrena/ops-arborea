@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import type { Tarea, TareaCompletada } from '@/config';
 import { compressPhotos } from '@/lib/photo-compression';
@@ -9,9 +9,8 @@ import { saveSubmission, getPendingCount } from '@/lib/offline-storage';
 import { syncSubmission } from '@/lib/sync';
 import { TaskIcon } from '@/lib/icons';
 
-export default function TareaDetailClientPage() {
+export default function TareaDetailPage() {
   const router = useRouter();
-  const params = useParams();
   const [tarea, setTarea] = useState<Tarea | null>(null);
   const [observaciones, setObservaciones] = useState('');
   const [photos, setPhotos] = useState<File[]>([]);
@@ -23,20 +22,13 @@ export default function TareaDetailClientPage() {
     // Cargar tarea desde localStorage
     const tareaJson = localStorage.getItem('arborea_tarea_actual');
     if (!tareaJson) {
-      router.push('/tareas');
+      router.push('/');
       return;
     }
 
     const loadedTarea = JSON.parse(tareaJson) as Tarea;
-
-    // Verificar que el ID coincide
-    if (loadedTarea.taskId !== params.id) {
-      router.push('/tareas');
-      return;
-    }
-
     setTarea(loadedTarea);
-  }, [params.id, router]);
+  }, [router]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -86,7 +78,7 @@ export default function TareaDetailClientPage() {
           // Limpiar localStorage
           localStorage.removeItem('arborea_tarea_actual');
 
-          setTimeout(() => router.push('/tareas'), 1500);
+          setTimeout(() => router.push('/'), 1500);
           return;
         }
       }
@@ -98,7 +90,7 @@ export default function TareaDetailClientPage() {
       // Limpiar localStorage
       localStorage.removeItem('arborea_tarea_actual');
 
-      setTimeout(() => router.push('/tareas'), 2000);
+      setTimeout(() => router.push('/'), 2000);
     } catch (error) {
       console.error('Error al guardar:', error);
       setMessage('Error al guardar. Intenta de nuevo.');
@@ -130,11 +122,6 @@ export default function TareaDetailClientPage() {
         />
         <div className="trail">
           <button onClick={() => router.push('/')}>{tarea.responsable}</button>
-          <span className="sep">→</span>
-          <button onClick={() => {
-            localStorage.setItem('arborea_responsable', tarea.responsable);
-            router.push('/tareas');
-          }}>Mis pendientes</button>
         </div>
       </header>
 
@@ -244,7 +231,7 @@ export default function TareaDetailClientPage() {
             <button
               type="button"
               className="btn secondary"
-              onClick={() => router.push('/tareas')}
+              onClick={() => router.push('/')}
               disabled={isSubmitting}
             >
               Cancelar
