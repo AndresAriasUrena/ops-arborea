@@ -8,7 +8,8 @@ import { CHECKLISTS } from '@/checklists';
 import type { ChecklistSchema } from '@/config';
 import { getPendingCount } from '@/lib/offline-storage';
 import { initAutoSync } from '@/lib/sync';
-import { getIconComponent } from '@/lib/icons';
+import { getIconComponent, TaskIcon } from '@/lib/icons';
+import { fetchTareas } from '@/lib/tareas';
 
 type Step = 'person' | 'house' | 'checklist';
 
@@ -19,6 +20,7 @@ export default function Home() {
   const [selectedHouse, setSelectedHouse] = useState<House | null>(null);
   const [toast, setToast] = useState<string>('');
   const [pendingCount, setPendingCount] = useState<number>(0);
+  const [tareasCount, setTareasCount] = useState<number>(0);
 
   useEffect(() => {
     const saved = localStorage.getItem('arborea-last-person');
@@ -51,10 +53,20 @@ export default function Home() {
     }
   };
 
-  const handlePersonClick = (person: Person) => {
+  const handlePersonClick = async (person: Person) => {
     setSelectedPerson(person);
     setSelectedHouse(null);
     localStorage.setItem('arborea-last-person', person.id);
+
+    // Fetch tareas para esta persona
+    try {
+      const tareas = await fetchTareas(person.name);
+      setTareasCount(tareas.length);
+    } catch (error) {
+      console.error('Error fetching tareas:', error);
+      setTareasCount(0);
+    }
+
     setStep('house');
   };
 
@@ -162,6 +174,24 @@ export default function Home() {
           <div className="view">
             <div className="step">Casa</div>
             <div className="grid">
+              {tareasCount > 0 && (
+                <button
+                  className="btn"
+                  onClick={() => router.push('/tareas')}
+                >
+                  <div className="ico">
+                    <TaskIcon />
+                  </div>
+                  <div className="body">
+                    <div className="ttl">Mis pendientes ({tareasCount})</div>
+                  </div>
+                  <div className="go">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </div>
+                </button>
+              )}
               {houses.map(house => (
                 <button
                   key={house.id}
