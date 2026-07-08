@@ -44,6 +44,29 @@ export interface Submission {
   status: 'pending' | 'synced';
 }
 
+// Tipos para el sistema de tareas extra
+export interface Tarea {
+  taskId: string;
+  responsable: string;
+  casa: string;
+  titulo: string;
+  descripcion: string;
+  prioridad: 'normal' | 'urgente';
+  semana: string;
+  estado: string;
+}
+
+export interface TareaCompletada {
+  tipo: 'tarea_completada';
+  submissionId: string;        // uuid v4
+  taskId: string;
+  responsable: string;
+  observaciones?: string;
+  photos: { name: string; mime: string; dataBase64: string }[];
+  deviceTimestamp: string;     // ISO
+  status: 'pending' | 'synced';
+}
+
 export const people: Person[] = [
   {
     id: 'nicole',

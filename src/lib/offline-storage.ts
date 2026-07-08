@@ -1,12 +1,15 @@
 // Manejo de IndexedDB para cola de submissions pendientes
 
-import type { Submission } from '@/config';
+import type { Submission, TareaCompletada } from '@/config';
 
 const DB_NAME = 'arborea-ops';
 const DB_VERSION = 1;
 const STORE_NAME = 'submissions';
 
 let db: IDBDatabase | null = null;
+
+// Type union para items en la cola
+export type QueuedItem = Submission | TareaCompletada;
 
 export async function initDB(): Promise<IDBDatabase> {
   if (db) return db;
@@ -31,7 +34,7 @@ export async function initDB(): Promise<IDBDatabase> {
   });
 }
 
-export async function saveSubmission(submission: Submission): Promise<void> {
+export async function saveSubmission(submission: QueuedItem): Promise<void> {
   const database = await initDB();
   return new Promise((resolve, reject) => {
     const transaction = database.transaction([STORE_NAME], 'readwrite');
@@ -43,7 +46,7 @@ export async function saveSubmission(submission: Submission): Promise<void> {
   });
 }
 
-export async function getPendingSubmissions(): Promise<Submission[]> {
+export async function getPendingSubmissions(): Promise<QueuedItem[]> {
   const database = await initDB();
   return new Promise((resolve, reject) => {
     const transaction = database.transaction([STORE_NAME], 'readonly');
@@ -56,7 +59,7 @@ export async function getPendingSubmissions(): Promise<Submission[]> {
   });
 }
 
-export async function getAllSubmissions(): Promise<Submission[]> {
+export async function getAllSubmissions(): Promise<QueuedItem[]> {
   const database = await initDB();
   return new Promise((resolve, reject) => {
     const transaction = database.transaction([STORE_NAME], 'readonly');

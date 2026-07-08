@@ -70,10 +70,12 @@ Arbórea Operations/
 
 ### Medidas Touch-Friendly
 - Botones: `min-height: 82px`
-- Checkboxes: `28px × 28px`
+- Checkboxes: `28px × 28px` (alineados a la derecha)
 - Touch targets: `≥44px` (iOS HIG)
 - Font-size inputs: `16px` (evita zoom iOS)
 - Photo grid: `minmax(140px, 1fr)`
+- Textarea: `min-height: 140px`
+- PWA icons: Padding interno (16px/40px) con fondo forest green
 
 ## Archivos Clave
 
@@ -98,6 +100,7 @@ Arbórea Operations/
 ### UI Components
 - **`src/lib/icons.tsx`**: Sistema de iconos SVG profesionales
 - **`src/app/globals.css`**: Sistema de diseño completo
+- **`scripts/update-icons.py`**: Script Python para actualizar iconos PWA con padding
 
 ### Backend
 - **`apps-script/Code.gs`**: Backend completo con idempotencia
@@ -165,16 +168,15 @@ npm run build  # Genera carpeta out/ con 21 páginas estáticas
 ## Usuarios del Sistema
 
 ### Personas
-- **Nicole** (Operaciones)
-- **Andres** (Mantenimiento)
+- **Nicole** (Limpieza)
 - **Denisa** (Limpieza)
+- **Bryan** (Mantenimiento)
 
 ### Casas
-- Casa Nube
-- Casa Mango
+- Ceiba
+- Ron Ron
+- Mango
 - Palmera Azul
-- Casa Árbol
-- Casa Luna
 
 ## Testing
 
@@ -210,6 +212,9 @@ npm run dev  # http://localhost:3000
 6. **Overflow botones** → min-width: 0, text-overflow: ellipsis
 7. **Photo button bajo contraste** → Background canopy green
 8. **Botones formulario** → flex: 1 en ambos (50/50 split)
+9. **Textarea angosto** → Estilos específicos `.form-section > textarea`
+10. **PWA icons cortados** → Padding interno con resize (16px/40px)
+11. **Breakpoint muy bajo** → Ajustado a 600px para iPhone Pro Max
 
 ## Próximos Pasos (Opcional)
 
@@ -256,5 +261,22 @@ ls -R out/
 ---
 
 **Última actualización:** 2025-06-18
-**Versión:** 1.0.0 (UI/UX Redesign Complete)
+**Versión:** 1.1.0 (Configuration Updates + PWA Icons)
 **Estado:** Production Ready ✅
+
+## Changelog
+
+### v1.1.0 (2025-06-18)
+- Actualización de configuración de usuarios (Nicole, Denisa, Bryan)
+- Actualización de casas (Ceiba, Ron Ron, Mango, Palmera Azul)
+- Mejora de textarea con altura extendida (140px)
+- Iconos PWA con padding interno y fondo verde oscuro completo
+- Estilos específicos para `.form-section > textarea`
+
+### v1.0.0 (2025-06-18)
+- Rediseño UI/UX completo "restraint radical"
+- Sistema de iconos SVG profesionales
+- Touch-friendly optimization (82px botones, 28px checkboxes)
+- Alto contraste para uso exterior
+- Responsive breakpoints ajustados
+- Offline-first PWA funcional
