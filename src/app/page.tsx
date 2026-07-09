@@ -24,6 +24,12 @@ export default function Home() {
   const [showTareas, setShowTareas] = useState<boolean>(false);
 
   useEffect(() => {
+    // Redirect inmediato si gerencia ya está desbloqueada
+    if (localStorage.getItem('arborea_gerencia_ok') === 'true') {
+      router.push('/gerencia');
+      return;
+    }
+
     const saved = localStorage.getItem('arborea-last-person');
     if (saved) {
       const person = people.find(p => p.id === saved);
@@ -112,6 +118,7 @@ export default function Home() {
     }
   };
 
+  const fieldPeople = people.filter(p => p.surface !== 'gerencia');
   const roleChecklists = CHECKLISTS.filter(c => c.role === selectedPerson?.role);
 
   return (
@@ -151,7 +158,7 @@ export default function Home() {
           <div className="view">
             <div className="step">Persona</div>
             <div className="grid two">
-              {people.map(person => (
+              {fieldPeople.map(person => (
                 <button
                   key={person.id}
                   className="btn"

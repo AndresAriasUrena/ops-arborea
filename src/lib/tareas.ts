@@ -45,67 +45,61 @@ async function getTareasFromCache(responsable: string): Promise<Tarea[] | null> 
   });
 }
 
-// Fetch tareas desde el backend con caché offline
-export async function fetchTareas(responsable: string): Promise<Tarea[]> {
+// Función interna compartida para fetch + caché
+async function fetchTareasInternal(responsable: string, action: 'getTareas' | 'getTareasManagement'): Promise<Tarea[]> {
   if (!BACKEND_URL) {
-    console.warn('BACKEND_URL no configurado, usando caché');
+    console.warn(`[${action}] BACKEND_URL no configurado, usando caché`);
     const cached = await getTareasFromCache(responsable);
     return cached || [];
   }
 
-  // Intentar fetch online
   if (navigator.onLine) {
     try {
-      const payload = {
-        action: 'getTareas',
-        responsable,
-        secret: SHARED_SECRET,
-      };
-
-      console.log('[fetchTareas] Enviando request:', { action: 'getTareas', responsable });
+      const payload = { action, responsable, secret: SHARED_SECRET };
+      console.log(`[${action}] Enviando request:`, { action, responsable });
 
       const response = await fetch(BACKEND_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain',
-        },
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(payload),
       });
 
-      console.log('[fetchTareas] Response status:', response.status);
-
+      console.log(`[${action}] Response status:`, response.status);
       const result: { ok: boolean; tareas?: Tarea[]; error?: string } = await response.json();
-      console.log('[fetchTareas] Response body:', result);
+      console.log(`[${action}] Response body:`, result);
 
       if (result.ok && result.tareas) {
-        // Guardar en caché
         await saveTareasToCache(responsable, result.tareas);
         return result.tareas;
       } else {
-        console.warn('[fetchTareas] Backend error:', result.error);
-
-        // Si el backend aún no implementa getTareas, intentar caché
+        console.warn(`[${action}] Backend error:`, result.error);
         const cached = await getTareasFromCache(responsable);
         if (cached && cached.length > 0) {
-          console.log('[fetchTareas] Usando caché existente:', cached.length, 'tareas');
+          console.log(`[${action}] Usando caché existente:`, cached.length, 'tareas');
           return cached;
         }
-
-        // Si no hay caché, devolver array vacío (backend no implementado aún)
-        console.log('[fetchTareas] No hay caché disponible, devolviendo array vacío');
+        console.log(`[${action}] No hay caché disponible, devolviendo array vacío`);
         return [];
       }
     } catch (error) {
-      console.error('[fetchTareas] Error de red:', error);
-      // Fallback a caché
+      console.error(`[${action}] Error de red:`, error);
       const cached = await getTareasFromCache(responsable);
       return cached || [];
     }
   }
 
-  // Sin conexión, usar caché
   const cached = await getTareasFromCache(responsable);
   return cached || [];
+}
+
+// Fetch tareas de campo desde el backend con caché offline
+export async function fetchTareas(responsable: string): Promise<Tarea[]> {
+  return fetchTareasInternal(responsable, 'getTareas');
+}
+
+// Fetch tareas de gerencia (hoja Management) con caché offline
+export async function fetchTareasManagement(responsable: string): Promise<Tarea[]> {
+  return fetchTareasInternal(responsable, 'getTareasManagement');
 }
 
 // Encolar cierre de tarea (usa la misma cola que submissions)

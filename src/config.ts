@@ -1,10 +1,11 @@
-export type Role = 'limpieza' | 'mant';
+export type Role = 'limpieza' | 'mant' | 'gerencia';
 
 export interface Person {
   id: string;
   name: string;
   role: Role;
   sub: string;
+  surface?: 'field' | 'gerencia';
 }
 
 export interface House {
@@ -65,6 +66,7 @@ export interface TareaCompletada {
   photos: { name: string; mime: string; dataBase64: string }[];
   deviceTimestamp: string;     // ISO
   status: 'pending' | 'synced';
+  scope?: 'management';
 }
 
 export const people: Person[] = [
@@ -85,6 +87,13 @@ export const people: Person[] = [
     name: 'Bryan',
     role: 'mant',
     sub: 'mantenimiento',
+  },
+  {
+    id: 'alex',
+    name: 'Alex',
+    role: 'gerencia',
+    sub: 'gerencia',
+    surface: 'gerencia',
   },
 ];
 

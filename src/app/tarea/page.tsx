@@ -12,6 +12,7 @@ import { TaskIcon } from '@/lib/icons';
 export default function TareaDetailPage() {
   const router = useRouter();
   const [tarea, setTarea] = useState<Tarea | null>(null);
+  const [isManagement, setIsManagement] = useState(false);
   const [observaciones, setObservaciones] = useState('');
   const [photos, setPhotos] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,7 +27,9 @@ export default function TareaDetailPage() {
       return;
     }
 
-    const loadedTarea = JSON.parse(tareaJson) as Tarea;
+    const parsed = JSON.parse(tareaJson) as Tarea & { _scope?: string };
+    const { _scope, ...loadedTarea } = parsed;
+    if (_scope === 'management') setIsManagement(true);
     setTarea(loadedTarea);
   }, [router]);
 
@@ -63,6 +66,7 @@ export default function TareaDetailPage() {
         photos: compressedPhotos,
         deviceTimestamp: new Date().toISOString(),
         status: 'pending',
+        ...(isManagement ? { scope: 'management' as const } : {}),
       };
 
       // Guardar en IndexedDB (misma cola que submissions)
@@ -78,7 +82,7 @@ export default function TareaDetailPage() {
           // Limpiar localStorage
           localStorage.removeItem('arborea_tarea_actual');
 
-          setTimeout(() => router.push('/'), 1500);
+          setTimeout(() => router.push(isManagement ? '/gerencia' : '/'), 1500);
           return;
         }
       }
@@ -90,7 +94,7 @@ export default function TareaDetailPage() {
       // Limpiar localStorage
       localStorage.removeItem('arborea_tarea_actual');
 
-      setTimeout(() => router.push('/'), 2000);
+      setTimeout(() => router.push(isManagement ? '/gerencia' : '/'), 2000);
     } catch (error) {
       console.error('Error al guardar:', error);
       setMessage('Error al guardar. Intenta de nuevo.');
@@ -121,7 +125,7 @@ export default function TareaDetailPage() {
           priority
         />
         <div className="trail">
-          <button onClick={() => router.push('/')}>{tarea.responsable}</button>
+          <button onClick={() => router.push(isManagement ? '/gerencia' : '/')}>{tarea.responsable}</button>
         </div>
       </header>
 
@@ -231,7 +235,7 @@ export default function TareaDetailPage() {
             <button
               type="button"
               className="btn secondary"
-              onClick={() => router.push('/')}
+              onClick={() => router.push(isManagement ? '/gerencia' : '/')}
               disabled={isSubmitting}
             >
               Cancelar
