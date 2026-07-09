@@ -17,10 +17,14 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^tarea/?$ /tarea.html [L]
 
-# Route checklist dynamic paths
+# Remove trailing slash from checklist paths (prevent directory listing)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^checklist/([^/]+)/$ /checklist/$1 [R=301,L]
+
+# Route checklist dynamic paths to .html files
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^checklist/([^/]+)/?$ /checklist/$1.html [L]
+RewriteRule ^checklist/([^/]+)$ /checklist/$1.html [L]
 
 # Fallback to index.html
 RewriteCond %{REQUEST_FILENAME} !-f
