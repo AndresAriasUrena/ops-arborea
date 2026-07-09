@@ -324,6 +324,25 @@ export default function Home() {
         <footer>donde el bosque respira</footer>
       </main>
 
+      <div style={{ textAlign: 'center', paddingBottom: 8 }}>
+        <button
+          onClick={() => router.push('/gerencia')}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--dusk)',
+            fontFamily: 'var(--structural)',
+            fontSize: 12,
+            cursor: 'pointer',
+            letterSpacing: '0.02em',
+            padding: '6px 12px',
+            opacity: 0.5,
+          }}
+        >
+          Gerencia
+        </button>
+      </div>
+
       <div className={`toast ${toast ? 'show' : ''}`} dangerouslySetInnerHTML={{ __html: toast }} />
     </div>
   );
