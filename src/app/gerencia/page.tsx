@@ -134,7 +134,7 @@ export default function GerenciaPage() {
                 )}
               </div>
 
-              <button type="submit" className="btn primary" disabled={pin.length < 4} style={{ justifyContent: 'center' }}>
+              <button type="submit" className="btn primary" disabled={pin.length < 4} style={{ justifyContent: 'center', color: 'var(--forest)' }}>
                 <span className="ttl">Entrar</span>
               </button>
             </form>
