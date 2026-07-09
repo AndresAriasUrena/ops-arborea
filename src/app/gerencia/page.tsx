@@ -134,8 +134,8 @@ export default function GerenciaPage() {
                 )}
               </div>
 
-              <button type="submit" className="btn primary" disabled={pin.length < 4} style={{ justifyContent: 'center', color: 'var(--forest)' }}>
-                <span className="ttl">Entrar</span>
+              <button type="submit" className="btn primary" disabled={pin.length < 4} style={{ justifyContent: 'center' }}>
+                <span className="ttl" style={{ color: 'var(--forest)' }}>Entrar</span>
               </button>
             </form>
           </div>
@@ -201,7 +201,7 @@ export default function GerenciaPage() {
                 className="btn primary"
                 style={{ maxWidth: 200, margin: '0 auto', justifyContent: 'center' }}
               >
-                <span className="ttl">Reintentar</span>
+                <span className="ttl" style={{ color: 'var(--forest)' }}>Reintentar</span>
               </button>
             </div>
           )}
