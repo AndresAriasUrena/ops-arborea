@@ -45,12 +45,19 @@ async function getTareasFromCache(responsable: string): Promise<Tarea[] | null> 
   });
 }
 
-// Función interna compartida para fetch + caché
-async function fetchTareasInternal(responsable: string, action: 'getTareas' | 'getTareasManagement'): Promise<Tarea[]> {
+export interface TareasResult {
+  ok: boolean;
+  tareas: Tarea[];
+  error?: string;
+  fromCache?: boolean;
+}
+
+// Variante con estado explícito — distingue error de lista vacía
+async function fetchTareasResult(responsable: string, action: 'getTareas' | 'getTareasManagement'): Promise<TareasResult> {
   if (!BACKEND_URL) {
     console.warn(`[${action}] BACKEND_URL no configurado, usando caché`);
     const cached = await getTareasFromCache(responsable);
-    return cached || [];
+    return { ok: true, tareas: cached || [], fromCache: true };
   }
 
   if (navigator.onLine) {
@@ -70,26 +77,39 @@ async function fetchTareasInternal(responsable: string, action: 'getTareas' | 'g
 
       if (result.ok && result.tareas) {
         await saveTareasToCache(responsable, result.tareas);
-        return result.tareas;
+        return { ok: true, tareas: result.tareas };
       } else {
         console.warn(`[${action}] Backend error:`, result.error);
+        // Backend respondió ok:false — propagar el error, no silenciar con []
         const cached = await getTareasFromCache(responsable);
         if (cached && cached.length > 0) {
           console.log(`[${action}] Usando caché existente:`, cached.length, 'tareas');
-          return cached;
+          return { ok: true, tareas: cached, fromCache: true };
         }
-        console.log(`[${action}] No hay caché disponible, devolviendo array vacío`);
-        return [];
+        return { ok: false, tareas: [], error: result.error || 'Error del servidor' };
       }
     } catch (error) {
       console.error(`[${action}] Error de red:`, error);
       const cached = await getTareasFromCache(responsable);
-      return cached || [];
+      if (cached && cached.length > 0) {
+        return { ok: true, tareas: cached, fromCache: true };
+      }
+      return { ok: false, tareas: [], error: 'Sin conexión y sin datos guardados' };
     }
   }
 
+  // Sin conexión — usar caché si existe
   const cached = await getTareasFromCache(responsable);
-  return cached || [];
+  if (cached) {
+    return { ok: true, tareas: cached, fromCache: true };
+  }
+  return { ok: false, tareas: [], error: 'Sin conexión' };
+}
+
+// Wrappers con firma Tarea[] para compatibilidad con el resto de la app
+async function fetchTareasInternal(responsable: string, action: 'getTareas' | 'getTareasManagement'): Promise<Tarea[]> {
+  const result = await fetchTareasResult(responsable, action);
+  return result.tareas;
 }
 
 // Fetch tareas de campo desde el backend con caché offline
@@ -100,6 +120,11 @@ export async function fetchTareas(responsable: string): Promise<Tarea[]> {
 // Fetch tareas de gerencia (hoja Management) con caché offline
 export async function fetchTareasManagement(responsable: string): Promise<Tarea[]> {
   return fetchTareasInternal(responsable, 'getTareasManagement');
+}
+
+// Variante con estado explícito para la vista de gerencia
+export async function fetchTareasManagementResult(responsable: string): Promise<TareasResult> {
+  return fetchTareasResult(responsable, 'getTareasManagement');
 }
 
 // Encolar cierre de tarea (usa la misma cola que submissions)

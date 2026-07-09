@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { fetchTareasManagement } from '@/lib/tareas';
+import { fetchTareasManagementResult } from '@/lib/tareas';
 import { TaskIcon } from '@/lib/icons';
 import type { Tarea } from '@/config';
 
 const GERENCIA_PIN = process.env.NEXT_PUBLIC_GERENCIA_PIN || '';
+
+type LoadState = 'idle' | 'loading' | 'ok' | 'error';
 
 export default function GerenciaPage() {
   const router = useRouter();
@@ -15,8 +17,35 @@ export default function GerenciaPage() {
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState(false);
   const [tareas, setTareas] = useState<Tarea[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadState, setLoadState] = useState<LoadState>('idle');
+  const [fromCache, setFromCache] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const pinInputRef = useRef<HTMLInputElement>(null);
+
+  const loadTareas = useCallback(async () => {
+    setLoadState('loading');
+    setFromCache(false);
+    setLoadError('');
+    try {
+      const result = await fetchTareasManagementResult('Alex');
+      if (result.ok) {
+        const sorted = [...result.tareas].sort((a, b) => {
+          if (a.prioridad === 'urgente' && b.prioridad !== 'urgente') return -1;
+          if (a.prioridad !== 'urgente' && b.prioridad === 'urgente') return 1;
+          return 0;
+        });
+        setTareas(sorted);
+        setFromCache(result.fromCache ?? false);
+        setLoadState('ok');
+      } else {
+        setLoadError(result.error || 'Error desconocido');
+        setLoadState('error');
+      }
+    } catch {
+      setLoadError('Error inesperado al cargar');
+      setLoadState('error');
+    }
+  }, []);
 
   useEffect(() => {
     if (localStorage.getItem('arborea_gerencia_ok') === 'true') {
@@ -26,24 +55,7 @@ export default function GerenciaPage() {
     } else {
       setTimeout(() => pinInputRef.current?.focus(), 100);
     }
-  }, []);
-
-  async function loadTareas() {
-    setLoading(true);
-    try {
-      const fetched = await fetchTareasManagement('Alex');
-      const sorted = [...fetched].sort((a, b) => {
-        if (a.prioridad === 'urgente' && b.prioridad !== 'urgente') return -1;
-        if (a.prioridad !== 'urgente' && b.prioridad === 'urgente') return 1;
-        return 0;
-      });
-      setTareas(sorted);
-    } catch {
-      setTareas([]);
-    } finally {
-      setLoading(false);
-    }
-  }
+  }, [loadTareas]);
 
   function handlePinSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -72,32 +84,19 @@ export default function GerenciaPage() {
     router.push('/');
   }
 
+  // ── Pantalla de PIN ───────────────────────────────────────────────────────
   if (!unlocked) {
     return (
       <div className="wrap">
         <header>
-          <Image
-            src="/sub-logo.png"
-            alt="Arbórea Experiences"
-            width={188}
-            height={48}
-            className="lockup"
-            priority
-          />
+          <Image src="/sub-logo.png" alt="Arbórea Experiences" width={188} height={48} className="lockup" priority />
         </header>
 
         <main>
           <div className="view" style={{ maxWidth: 320, margin: '0 auto' }}>
             <div className="step">Gerencia</div>
 
-            <div style={{
-              textAlign: 'center',
-              marginBottom: 32,
-              color: 'var(--sand)',
-              fontFamily: 'var(--structural)',
-              fontSize: 14,
-              letterSpacing: '0.01em',
-            }}>
+            <div style={{ textAlign: 'center', marginBottom: 32, color: 'var(--sand)', fontFamily: 'var(--structural)', fontSize: 14, letterSpacing: '0.01em' }}>
               Ingresa tu PIN para acceder
             </div>
 
@@ -129,24 +128,13 @@ export default function GerenciaPage() {
                   autoComplete="off"
                 />
                 {pinError && (
-                  <div style={{
-                    textAlign: 'center',
-                    marginTop: 8,
-                    color: '#FF8A80',
-                    fontFamily: 'var(--structural)',
-                    fontSize: 13,
-                  }}>
+                  <div style={{ textAlign: 'center', marginTop: 8, color: '#FF8A80', fontFamily: 'var(--structural)', fontSize: 13 }}>
                     PIN incorrecto
                   </div>
                 )}
               </div>
 
-              <button
-                type="submit"
-                className="btn primary"
-                disabled={pin.length < 4}
-                style={{ justifyContent: 'center' }}
-              >
+              <button type="submit" className="btn primary" disabled={pin.length < 4} style={{ justifyContent: 'center' }}>
                 <span className="ttl">Entrar</span>
               </button>
             </form>
@@ -158,17 +146,11 @@ export default function GerenciaPage() {
     );
   }
 
+  // ── Vista principal de gerencia ───────────────────────────────────────────
   return (
     <div className="wrap">
       <header>
-        <Image
-          src="/sub-logo.png"
-          alt="Arbórea Experiences"
-          width={188}
-          height={48}
-          className="lockup"
-          priority
-        />
+        <Image src="/sub-logo.png" alt="Arbórea Experiences" width={188} height={48} className="lockup" priority />
         <div className="trail">
           <span style={{ color: 'var(--sand)', fontFamily: 'var(--structural)', fontSize: 13 }}>Alex</span>
         </div>
@@ -176,68 +158,104 @@ export default function GerenciaPage() {
 
       <main>
         <div className="view">
-          <div className="step">Pendientes</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
+            <div className="step" style={{ margin: 0 }}>Pendientes</div>
+            <button
+              onClick={loadTareas}
+              disabled={loadState === 'loading'}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: loadState === 'loading' ? 'var(--dusk)' : 'var(--amber)',
+                fontFamily: 'var(--structural)',
+                fontSize: 13,
+                letterSpacing: '0.02em',
+                cursor: loadState === 'loading' ? 'default' : 'pointer',
+                padding: '4px 0',
+              }}
+            >
+              {loadState === 'loading' ? 'Actualizando…' : 'Actualizar'}
+            </button>
+          </div>
 
-          {loading && (
-            <div style={{
-              color: 'var(--slate)',
-              fontFamily: 'var(--structural)',
-              fontSize: 14,
-              textAlign: 'center',
-              padding: '24px 0',
-            }}>
-              Cargando...
+          {/* Estado: cargando */}
+          {loadState === 'loading' && (
+            <div style={{ color: 'var(--slate)', fontFamily: 'var(--structural)', fontSize: 14, textAlign: 'center', padding: '32px 0' }}>
+              Cargando pendientes…
             </div>
           )}
 
-          {!loading && tareas.length === 0 && (
-            <div style={{
-              color: 'var(--slate)',
-              fontFamily: 'var(--structural)',
-              fontSize: 14,
-              textAlign: 'center',
-              padding: '32px 0',
-              lineHeight: 1.6,
-            }}>
-              Sin pendientes por ahora.
+          {/* Estado: error */}
+          {loadState === 'error' && (
+            <div style={{ textAlign: 'center', padding: '32px 0' }}>
+              <div style={{ color: 'var(--slate)', fontFamily: 'var(--structural)', fontSize: 14, marginBottom: 8 }}>
+                No se pudieron cargar las tareas
+              </div>
+              {loadError && (
+                <div style={{ color: 'var(--dusk)', fontFamily: 'var(--structural)', fontSize: 12, marginBottom: 20 }}>
+                  {loadError}
+                </div>
+              )}
+              <button
+                onClick={loadTareas}
+                className="btn primary"
+                style={{ maxWidth: 200, margin: '0 auto', justifyContent: 'center' }}
+              >
+                <span className="ttl">Reintentar</span>
+              </button>
             </div>
           )}
 
-          {!loading && tareas.length > 0 && (
-            <div className="grid">
-              {tareas.map((tarea) => (
-                <button
-                  key={tarea.taskId}
-                  className="btn"
-                  onClick={() => handleTareaClick(tarea)}
-                >
-                  <div className="ico" style={{ color: tarea.prioridad === 'urgente' ? 'var(--amber)' : 'var(--slate)' }}>
-                    <TaskIcon />
-                  </div>
-                  <div className="body">
-                    <div className="ttl">
-                      {tarea.titulo}
-                      {tarea.prioridad === 'urgente' && (
-                        <span style={{ marginLeft: 8, fontSize: 13, color: 'var(--amber)', fontWeight: 'normal' }}>
-                          Urgente
-                        </span>
-                      )}
-                    </div>
-                    {tarea.casa && <div className="sub">{tarea.casa}</div>}
-                    {tarea.descripcion && (
-                      <div className="role" style={{ marginTop: 4, fontSize: 13 }}>
-                        {tarea.descripcion.substring(0, 80)}{tarea.descripcion.length > 80 ? '...' : ''}
+          {/* Estado: ok */}
+          {loadState === 'ok' && (
+            <>
+              {fromCache && (
+                <div style={{ color: 'var(--dusk)', fontFamily: 'var(--structural)', fontSize: 12, letterSpacing: '0.01em', marginBottom: 16, textAlign: 'center' }}>
+                  Mostrando datos guardados
+                </div>
+              )}
+
+              {tareas.length === 0 ? (
+                <div style={{ color: 'var(--slate)', fontFamily: 'var(--structural)', fontSize: 14, textAlign: 'center', padding: '32px 0', lineHeight: 1.6 }}>
+                  Sin pendientes por ahora.
+                </div>
+              ) : (
+                <div className="grid">
+                  {tareas.map((tarea) => (
+                    <button
+                      key={tarea.taskId}
+                      className="btn"
+                      onClick={() => handleTareaClick(tarea)}
+                    >
+                      <div className="ico" style={{ color: tarea.prioridad === 'urgente' ? 'var(--amber)' : 'var(--slate)' }}>
+                        <TaskIcon />
                       </div>
-                    )}
-                  </div>
-                  <div className="go">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
-                  </div>
-                </button>
-              ))}
-            </div>
+                      <div className="body">
+                        <div className="ttl">
+                          {tarea.titulo}
+                          {tarea.prioridad === 'urgente' && (
+                            <span style={{ marginLeft: 8, fontSize: 13, color: 'var(--amber)', fontWeight: 'normal' }}>
+                              Urgente
+                            </span>
+                          )}
+                        </div>
+                        {tarea.casa && <div className="sub">{tarea.casa}</div>}
+                        {tarea.descripcion && (
+                          <div className="role" style={{ marginTop: 4, fontSize: 13 }}>
+                            {tarea.descripcion.substring(0, 80)}{tarea.descripcion.length > 80 ? '...' : ''}
+                          </div>
+                        )}
+                      </div>
+                      <div className="go">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="m9 18 6-6-6-6" />
+                        </svg>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
