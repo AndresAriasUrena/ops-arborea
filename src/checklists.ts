@@ -46,6 +46,7 @@ export const CHECKLISTS: ChecklistSchema[] = [
         { id: "ban_griferia", label: "Pulir grifería y espejos", type: "check" },
         { id: "ban_toallas", label: "Doblar toallas estilo hotel + toalla de piscina extra", type: "check" },
         { id: "ban_papel", label: "Papel higiénico con doblez en punta", type: "check" },
+        { id: "ban_alfombras", label: "Poner alfombras y paños de pies", type: "check" },
       ]},
       { title: "Amenities (reponer completos)", items: [
         { id: "ame_basicos", label: "Shampoo / acondicionador / crema / jabón cuerpo", type: "check" },
@@ -56,6 +57,8 @@ export const CHECKLISTS: ChecklistSchema[] = [
         { id: "coc_reponer", label: "Reponer: frutas, aceite, sal, pimienta, miel", type: "check" },
         { id: "coc_welcome", label: "Welcome básico (agua, café, té) según paquete reservado", type: "check" },
         { id: "coc_electro", label: "Limpiar electrodomésticos", type: "check" },
+        { id: "coc_cuchillos", label: "Asegurarse que hayan cuchillos y tabla de picar", type: "check" },
+        { id: "coc_tijeras", label: "Asegurarse que haya tijera de cocina", type: "check" },
       ]},
       { title: "Mesa de centro", items: [
         { id: "mes_detalle", label: "Repelente / hierbas / chocolate", type: "check" },
