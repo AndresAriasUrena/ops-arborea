@@ -275,12 +275,30 @@ export default function Home() {
                 </button>
               ))}
             </div>
-            <button className="back" onClick={() => resetToStep('person')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-              volver
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 }}>
+              <button className="back" onClick={() => resetToStep('person')}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+                volver
+              </button>
+              <button
+                onClick={() => router.push('/gasto')}
+                style={{
+                  background: 'none',
+                  border: '1px solid var(--amber)',
+                  borderRadius: 20,
+                  color: 'var(--amber)',
+                  fontFamily: 'var(--structural)',
+                  fontSize: 13,
+                  letterSpacing: '0.02em',
+                  cursor: 'pointer',
+                  padding: '6px 14px',
+                }}
+              >
+                Reportar factura
+              </button>
+            </div>
           </div>
         )}
 

@@ -104,6 +104,19 @@ export const houses: House[] = [
   { id: 'palmera', name: 'Palmera Azul' },
 ];
 
+// Tipo para reporte de gasto/factura
+export interface GastoPayload {
+  action: 'guardarGasto';
+  submissionId: string;
+  responsable: string;
+  casa: string;
+  detalle: string;
+  monto: string;
+  deviceTimestamp: string;
+  photos: { mime: string; dataBase64: string }[];
+  status: 'pending' | 'synced';
+}
+
 // Backend configuration
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
 export const SHARED_SECRET = process.env.NEXT_PUBLIC_SHARED_SECRET || '';

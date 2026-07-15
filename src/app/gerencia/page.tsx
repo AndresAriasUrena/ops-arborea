@@ -260,7 +260,23 @@ export default function GerenciaPage() {
         </div>
       </main>
 
-      <div style={{ marginTop: 'auto', paddingTop: 24, textAlign: 'center' }}>
+      <div style={{ marginTop: 'auto', paddingTop: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+        <button
+          onClick={() => router.push('/gasto')}
+          style={{
+            background: 'none',
+            border: '1px solid var(--amber)',
+            borderRadius: 20,
+            color: 'var(--amber)',
+            fontFamily: 'var(--structural)',
+            fontSize: 13,
+            letterSpacing: '0.02em',
+            cursor: 'pointer',
+            padding: '7px 18px',
+          }}
+        >
+          Reportar factura
+        </button>
         <button
           onClick={handleSalir}
           style={{

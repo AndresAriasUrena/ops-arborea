@@ -1,6 +1,6 @@
 // Manejo de IndexedDB para cola de submissions pendientes
 
-import type { Submission, TareaCompletada } from '@/config';
+import type { Submission, TareaCompletada, GastoPayload } from '@/config';
 
 const DB_NAME = 'arborea-ops';
 const DB_VERSION = 2; // Incrementado para añadir store tareasCache
@@ -10,7 +10,7 @@ const TAREAS_STORE = 'tareasCache';
 let db: IDBDatabase | null = null;
 
 // Type union para items en la cola
-export type QueuedItem = Submission | TareaCompletada;
+export type QueuedItem = Submission | TareaCompletada | GastoPayload;
 
 export async function initDB(): Promise<IDBDatabase> {
   if (db) return db;

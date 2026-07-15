@@ -58,8 +58,18 @@ export async function compressPhoto(
 
 export async function compressPhotos(
   files: File[],
-  maxPhotos = 10
+  maxPhotos = 10,
+  maxDimension = 1600,
+  quality = 0.7
 ): Promise<{ name: string; mime: string; dataBase64: string }[]> {
   const limited = files.slice(0, maxPhotos);
-  return Promise.all(limited.map((file) => compressPhoto(file)));
+  return Promise.all(limited.map((file) => compressPhoto(file, maxDimension, quality)));
+}
+
+export async function compressPhotosGasto(
+  files: File[],
+  maxPhotos = 10
+): Promise<{ mime: string; dataBase64: string }[]> {
+  const compressed = await compressPhotos(files, maxPhotos, 2200, 0.82);
+  return compressed.map(({ mime, dataBase64 }) => ({ mime, dataBase64 }));
 }

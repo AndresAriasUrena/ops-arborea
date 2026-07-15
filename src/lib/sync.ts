@@ -1,6 +1,6 @@
 // Sincronización con backend Apps Script
 
-import type { Submission, TareaCompletada } from '@/config';
+import type { Submission, TareaCompletada, GastoPayload } from '@/config';
 import { BACKEND_URL, SHARED_SECRET } from '@/config';
 import { getPendingSubmissions, markAsSynced } from './offline-storage';
 
@@ -16,11 +16,11 @@ export interface SyncResponse {
 let isSyncing = false;
 
 // Type guard para TareaCompletada
-function isTareaCompletada(item: Submission | TareaCompletada): item is TareaCompletada {
+function isTareaCompletada(item: Submission | TareaCompletada | GastoPayload): item is TareaCompletada {
   return 'tipo' in item && item.tipo === 'tarea_completada';
 }
 
-export async function syncSubmission(submission: Submission | TareaCompletada): Promise<SyncResponse> {
+export async function syncSubmission(submission: Submission | TareaCompletada | GastoPayload): Promise<SyncResponse> {
   if (!BACKEND_URL) {
     return {
       ok: false,
