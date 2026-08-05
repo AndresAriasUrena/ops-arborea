@@ -3,9 +3,10 @@
 import type { Submission, TareaCompletada, GastoPayload } from '@/config';
 
 const DB_NAME = 'arborea-ops';
-const DB_VERSION = 2; // Incrementado para añadir store tareasCache
+const DB_VERSION = 3; // Incrementado para añadir store inventarioCache
 const STORE_NAME = 'submissions';
 const TAREAS_STORE = 'tareasCache';
+const INVENTARIO_STORE = 'inventarioCache';
 
 let db: IDBDatabase | null = null;
 
@@ -37,6 +38,11 @@ export async function initDB(): Promise<IDBDatabase> {
       // Store tareasCache (versión 2)
       if (!database.objectStoreNames.contains(TAREAS_STORE)) {
         database.createObjectStore(TAREAS_STORE, { keyPath: 'responsable' });
+      }
+
+      // Store inventarioCache (versión 3): un solo registro con el catálogo completo
+      if (!database.objectStoreNames.contains(INVENTARIO_STORE)) {
+        database.createObjectStore(INVENTARIO_STORE, { keyPath: 'id' });
       }
     };
   });

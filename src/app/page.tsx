@@ -282,22 +282,49 @@ export default function Home() {
                 </svg>
                 volver
               </button>
-              <button
-                onClick={() => router.push('/gasto')}
-                style={{
-                  background: 'none',
-                  border: '1px solid var(--amber)',
-                  borderRadius: 20,
-                  color: 'var(--amber)',
-                  fontFamily: 'var(--structural)',
-                  fontSize: 13,
-                  letterSpacing: '0.02em',
-                  cursor: 'pointer',
-                  padding: '6px 14px',
-                }}
-              >
-                Reportar factura
-              </button>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  onClick={() => {
+                    // Todavía no pasamos por handleChecklistClick, así que arborea_responsable
+                    // no está seteado — sin esto, /inventario rebota directo a "/".
+                    localStorage.setItem('arborea_responsable', selectedPerson.name);
+                    router.push('/inventario');
+                  }}
+                  style={{
+                    background: 'none',
+                    border: '1px solid var(--amber)',
+                    borderRadius: 20,
+                    color: 'var(--amber)',
+                    fontFamily: 'var(--structural)',
+                    fontSize: 13,
+                    letterSpacing: '0.02em',
+                    cursor: 'pointer',
+                    padding: '6px 14px',
+                  }}
+                >
+                  Inventario
+                </button>
+                <button
+                  onClick={() => {
+                    // Mismo motivo: /gasto también rebota a "/" si arborea_responsable no está seteado.
+                    localStorage.setItem('arborea_responsable', selectedPerson.name);
+                    router.push('/gasto');
+                  }}
+                  style={{
+                    background: 'none',
+                    border: '1px solid var(--amber)',
+                    borderRadius: 20,
+                    color: 'var(--amber)',
+                    fontFamily: 'var(--structural)',
+                    fontSize: 13,
+                    letterSpacing: '0.02em',
+                    cursor: 'pointer',
+                    padding: '6px 14px',
+                  }}
+                >
+                  Reportar factura
+                </button>
+              </div>
             </div>
           </div>
         )}

@@ -117,6 +117,42 @@ export interface GastoPayload {
   status: 'pending' | 'synced';
 }
 
+// Tipos para el módulo de inventario de bodega
+export interface InventarioItem {
+  itemId: string;
+  caja: string;
+  categoria: string;
+  articulo: string;
+  cantidad: number;
+  notas: string;
+}
+
+// El retiro siempre viaja en línea (no se encola offline): descuenta contra el stock real.
+export interface RetiroPayload {
+  action: 'retirarInventario';
+  submissionId: string;
+  itemId: string;
+  cantidad: number;
+  responsable: string;
+  casa?: string;
+  nota?: string;
+}
+
+// Ingreso: suma stock. Con itemId reabastece un artículo existente; sin itemId da de alta uno
+// nuevo (requiere caja/categoria/articulo). Igual que el retiro, siempre viaja en línea.
+export interface IngresoPayload {
+  action: 'ingresarInventario';
+  submissionId: string;
+  itemId?: string;
+  caja?: string;
+  categoria?: string;
+  articulo?: string;
+  cantidad: number;
+  responsable: string;
+  casa?: string;
+  nota?: string;
+}
+
 // Backend configuration
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
 export const SHARED_SECRET = process.env.NEXT_PUBLIC_SHARED_SECRET || '';

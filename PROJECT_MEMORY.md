@@ -283,6 +283,24 @@ ls -R out/
 
 ## Changelog
 
+### v1.4.0 (2026-08-04)
+- **Módulo Inventario Bodega** (`/inventario`): buscar cualquier artículo (por nombre, categoría
+  o caja) y retirar unidades, descontando la cantidad disponible automáticamente.
+- Backend en `Inventario.gs` (NO trackeado en git, igual que `codigo.gs`) — archivo APARTE, pero
+  dentro del MISMO proyecto de Apps Script que `codigo.gs` (mismo despliegue/URL/SHARED_SECRET;
+  se pidió explícitamente no mezclarlo en el archivo único). Reusa `json()`, `getTabIn()`,
+  `checkIfExists()`, `markAsProcessed()` de `codigo.gs` vía scope global compartido entre archivos
+  de un mismo proyecto Apps Script. Trabaja DIRECTO sobre la hoja real del equipo ("Inventario
+  Bodega", pestaña "Hoja 1") en vez de una copia aparte; agrega itemId estable (col F) a cada fila
+  y una pestaña "Movimientos" de auditoría.
+- El retiro SIEMPRE requiere conexión (no se encola offline) para que el descuento contra el
+  stock real quede protegido por LockService y dos retiros simultáneos no se pisen; la búsqueda
+  sí funciona offline contra la última copia cacheada en IndexedDB (`inventarioCache`, store nuevo,
+  DB_VERSION 3).
+- Acceso: todo el equipo de campo (Nicole, Denisa, Bryan) + Gerencia (Alex).
+- ⚠️ Pendiente ejecutar UNA vez `setupInventario()` en el editor de Apps Script antes de usar en
+  producción (asigna itemId a las filas existentes y crea la pestaña Movimientos).
+
 ### v1.3.0 (2025-06-18)
 - **UI completa de tareas extra** con navegación integrada
 - Botón "Mis pendientes (n)" en home tras selección de persona

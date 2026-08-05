@@ -261,22 +261,40 @@ export default function GerenciaPage() {
       </main>
 
       <div style={{ marginTop: 'auto', paddingTop: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-        <button
-          onClick={() => router.push('/gasto')}
-          style={{
-            background: 'none',
-            border: '1px solid var(--amber)',
-            borderRadius: 20,
-            color: 'var(--amber)',
-            fontFamily: 'var(--structural)',
-            fontSize: 13,
-            letterSpacing: '0.02em',
-            cursor: 'pointer',
-            padding: '7px 18px',
-          }}
-        >
-          Reportar factura
-        </button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            onClick={() => router.push('/inventario')}
+            style={{
+              background: 'none',
+              border: '1px solid var(--amber)',
+              borderRadius: 20,
+              color: 'var(--amber)',
+              fontFamily: 'var(--structural)',
+              fontSize: 13,
+              letterSpacing: '0.02em',
+              cursor: 'pointer',
+              padding: '7px 18px',
+            }}
+          >
+            Inventario
+          </button>
+          <button
+            onClick={() => router.push('/gasto')}
+            style={{
+              background: 'none',
+              border: '1px solid var(--amber)',
+              borderRadius: 20,
+              color: 'var(--amber)',
+              fontFamily: 'var(--structural)',
+              fontSize: 13,
+              letterSpacing: '0.02em',
+              cursor: 'pointer',
+              padding: '7px 18px',
+            }}
+          >
+            Reportar factura
+          </button>
+        </div>
         <button
           onClick={handleSalir}
           style={{
