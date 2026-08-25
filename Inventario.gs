@@ -252,7 +252,7 @@ function testRetirarInventario() {
     submissionId: 'retiro-test-' + Date.now(),
     itemId: items[0].itemId,
     cantidad: 1,
-    responsable: 'Bryan',
+    responsable: 'Glen',
     casa: '',
     nota: 'Prueba',
     secret: SHARED_SECRET
@@ -268,7 +268,7 @@ function testIngresarInventarioExistente() {
     submissionId: 'ingreso-test-' + Date.now(),
     itemId: items[0].itemId,
     cantidad: 1,
-    responsable: 'Bryan',
+    responsable: 'Glen',
     nota: 'Prueba reabastecer',
     secret: SHARED_SECRET
   })}});
@@ -283,7 +283,7 @@ function testIngresarInventarioNuevo() {
     categoria: 'Prueba',
     articulo: 'Artículo de prueba ' + Date.now(),
     cantidad: 3,
-    responsable: 'Bryan',
+    responsable: 'Glen',
     nota: 'Prueba alta',
     secret: SHARED_SECRET
   })}});

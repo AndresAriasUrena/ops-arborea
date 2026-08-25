@@ -83,8 +83,14 @@ export const people: Person[] = [
     sub: 'limpieza',
   },
   {
-    id: 'bryan',
-    name: 'Bryan',
+    id: 'glen',
+    name: 'Glen',
+    role: 'mant',
+    sub: 'mantenimiento',
+  },
+  {
+    id: 'angel',
+    name: 'Angel',
     role: 'mant',
     sub: 'mantenimiento',
   },

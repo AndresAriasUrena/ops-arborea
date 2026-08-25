@@ -187,7 +187,8 @@ npm run build  # Genera carpeta out/ con 23 páginas estáticas
 ### Personas
 - **Nicole** (Limpieza)
 - **Denisa** (Limpieza)
-- **Bryan** (Mantenimiento)
+- **Glen** (Mantenimiento)
+- **Angel** (Mantenimiento)
 
 ### Casas
 - Ceiba
@@ -283,6 +284,10 @@ ls -R out/
 
 ## Changelog
 
+### v1.4.1 (2026-08-25)
+- Actualización de personal de mantenimiento: **Bryan** reemplazado por **Glen** y **Angel**
+  (`src/config.ts` → `people`). Limpieza sin cambios (Nicole, Denisa).
+
 ### v1.4.0 (2026-08-04)
 - **Módulo Inventario Bodega** (`/inventario`): buscar cualquier artículo (por nombre, categoría
   o caja) y retirar unidades, descontando la cantidad disponible automáticamente.
@@ -297,7 +302,7 @@ ls -R out/
   stock real quede protegido por LockService y dos retiros simultáneos no se pisen; la búsqueda
   sí funciona offline contra la última copia cacheada en IndexedDB (`inventarioCache`, store nuevo,
   DB_VERSION 3).
-- Acceso: todo el equipo de campo (Nicole, Denisa, Bryan) + Gerencia (Alex).
+- Acceso: todo el equipo de campo (Nicole, Denisa, Glen, Angel) + Gerencia (Alex).
 - ⚠️ Pendiente ejecutar UNA vez `setupInventario()` en el editor de Apps Script antes de usar en
   producción (asigna itemId a las filas existentes y crea la pestaña Movimientos).
 

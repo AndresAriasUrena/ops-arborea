@@ -533,7 +533,7 @@ function testDoPost() {
 }
 function testGetTareas() {
   const r = doPost({ postData: { contents: JSON.stringify({
-    action: 'getTareas', responsable: 'Bryan', secret: SHARED_SECRET
+    action: 'getTareas', responsable: 'Glen', secret: SHARED_SECRET
   })}});
   Logger.log(r.getContent());
 }
@@ -548,7 +548,7 @@ function testGuardarGasto() {
   const r = doPost({ postData: { contents: JSON.stringify({
     action: 'guardarGasto',
     submissionId: 'gasto-test-' + Date.now(),
-    responsable: 'Bryan',
+    responsable: 'Glen',
     casa: '',                 // opcional
     detalle: 'Prueba ferretería',
     monto: '12500',
