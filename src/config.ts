@@ -69,6 +69,7 @@ export interface TareaCompletada {
   scope?: 'management';
 }
 
+// Fallback solo para la primera apertura sin internet. La fuente real del personal de campo es la hoja "Personal" (acción getPersonal). Alex (gerencia) sí vive aquí.
 export const people: Person[] = [
   {
     id: 'nicole',

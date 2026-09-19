@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { people, houses, type Person, type House, type Tarea } from '@/config';
+import { houses, type Person, type House, type Tarea } from '@/config';
 import { CHECKLISTS } from '@/checklists';
 import type { ChecklistSchema } from '@/config';
 import { getPendingCount } from '@/lib/offline-storage';
 import { initAutoSync } from '@/lib/sync';
 import { getIconComponent, TaskIcon } from '@/lib/icons';
 import { fetchTareas } from '@/lib/tareas';
+import { getCachedFieldPeople, refreshFieldPeople } from '@/lib/personal';
 
 type Step = 'person' | 'house' | 'checklist';
 
@@ -22,6 +23,16 @@ export default function Home() {
   const [pendingCount, setPendingCount] = useState<number>(0);
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [showTareas, setShowTareas] = useState<boolean>(false);
+  const [fieldPeople, setFieldPeople] = useState<Person[]>([]);
+
+  const updatePendingCount = async () => {
+    try {
+      const count = await getPendingCount();
+      setPendingCount(count);
+    } catch (error) {
+      console.error('Error obteniendo pendientes:', error);
+    }
+  };
 
   useEffect(() => {
     // Redirect inmediato si gerencia ya está desbloqueada
@@ -30,14 +41,32 @@ export default function Home() {
       return;
     }
 
+    // Cargar personal de campo desde caché (síncrono) y restaurar la persona guardada.
+    const cachedPeople = getCachedFieldPeople();
+    setFieldPeople(cachedPeople);
+
     const saved = localStorage.getItem('arborea-last-person');
     if (saved) {
-      const person = people.find(p => p.id === saved);
+      const person = cachedPeople.find(p => p.id === saved);
       if (person) {
         setSelectedPerson(person);
         setStep('house');
       }
     }
+
+    // Refrescar personal desde la hoja en segundo plano.
+    refreshFieldPeople().then(fresh => {
+      if (!fresh) return;
+      setFieldPeople(fresh);
+      // Si la persona guardada ya no está en la lista, resetear al step 'person'.
+      const stillSaved = localStorage.getItem('arborea-last-person');
+      if (stillSaved && !fresh.some(p => p.id === stillSaved)) {
+        localStorage.removeItem('arborea-last-person');
+        setSelectedPerson(null);
+        setSelectedHouse(null);
+        setStep('person');
+      }
+    });
 
     // Inicializar auto-sync
     initAutoSync();
@@ -50,15 +79,6 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, []);
-
-  const updatePendingCount = async () => {
-    try {
-      const count = await getPendingCount();
-      setPendingCount(count);
-    } catch (error) {
-      console.error('Error obteniendo pendientes:', error);
-    }
-  };
 
   const handlePersonClick = async (person: Person) => {
     setSelectedPerson(person);
@@ -118,7 +138,6 @@ export default function Home() {
     }
   };
 
-  const fieldPeople = people.filter(p => p.surface !== 'gerencia');
   const roleChecklists = CHECKLISTS.filter(c => c.role === selectedPerson?.role);
 
   return (
