@@ -52,7 +52,7 @@ export const CHECKLISTS: ChecklistSchema[] = [
         { id: "lav_escoba", label: "Asegurarse que haya escoba y pala", type: "check" },
         { id: "lav_trapo", label: "Asegurarse que haya trapo de piso", type: "check" },
         { id: "lav_jabon", label: "Poner contenedor pequeño de jabón de ropa", type: "check" },
-        { id: "lav_desinfectante", label: "Dejar botellita pequeña de desinfectante", type: "check" },
+        { id: "lav_desinfectante", label: "Dejar botella de desinfectante para clientes", type: "check" },
         { id: "lav_panitos", label: "Dejar paños pequeños para regueros (además del paño grande)", type: "check" },
       ]},
       { title: "Amenities (reponer completos)", items: [
@@ -67,6 +67,7 @@ export const CHECKLISTS: ChecklistSchema[] = [
         { id: "coc_cuchillos", label: "Asegurarse que hayan cuchillos y tabla de picar", type: "check" },
         { id: "coc_tijeras", label: "Asegurarse que haya tijera de cocina", type: "check" },
         { id: "coc_limpiones", label: "Poner limpiones", type: "check" },
+        { id: "coc_desengrasante", label: "Dejar desengrasante para clientes", type: "check" },
       ]},
       { title: "Mesa de centro", items: [
         { id: "mes_detalle", label: "Repelente / hierbas / chocolate", type: "check" },
@@ -82,6 +83,7 @@ export const CHECKLISTS: ChecklistSchema[] = [
         { id: "qc_limpio", label: "No hay cabellos visibles / olores / polvo", type: "check", required: true },
         { id: "qc_focos", label: "Todos los focos funcionan", type: "check", required: true },
         { id: "qc_sistemas", label: "A/C, puertas y WiFi funcionando", type: "check", required: true },
+        { id: "qc_televisores", label: "Verificar funcionamiento de televisores", type: "check" },
         { id: "qc_agua_caliente", label: "Revisar que el agua caliente esté funcionando", type: "check" },
         { id: "qc_ac_21", label: "Dejar A/C encendido a 21°C si el check-in es pronto", type: "check" },
         { id: "qc_inventario", label: "Inventario completo", type: "check", required: true },
@@ -128,6 +130,21 @@ export const CHECKLISTS: ChecklistSchema[] = [
         { id: "mb_cafe", label: "Café especial / cápsulas", type: "number" },
         { id: "mb_te", label: "Té selección", type: "number" },
         { id: "mb_kombucha", label: "Kombucha / bebida wellness", type: "number" },
+      ]},
+    ],
+  },
+
+  { id: "reabastecer_limpieza", role: "limpieza", label: "Reabastecer productos de limpieza", icon: "box",
+    notes: true, photos: { max: 10 },
+    sections: [
+      { title: "Productos de limpieza en la casa — nivel de stock", items: [
+        { id: "rl_cloro", label: "Cloro", type: "choice", options: ["Bien", "Bajo", "Agotado"] },
+        { id: "rl_jabon_ropa", label: "Jabón de ropa", type: "choice", options: ["Bien", "Bajo", "Agotado"] },
+        { id: "rl_jabon_platos", label: "Jabón de platos", type: "choice", options: ["Bien", "Bajo", "Agotado"] },
+        { id: "rl_desinfectante", label: "Desinfectante", type: "choice", options: ["Bien", "Bajo", "Agotado"] },
+        { id: "rl_bolsas", label: "Bolsas de basura", type: "choice", options: ["Bien", "Bajo", "Agotado"] },
+        { id: "rl_desengrasante", label: "Desengrasante", type: "choice", options: ["Bien", "Bajo", "Agotado"] },
+        { id: "rl_guantes", label: "Guantes", type: "choice", options: ["Bien", "Bajo", "Agotado"] },
       ]},
     ],
   },
